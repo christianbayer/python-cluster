@@ -1,0 +1,4 @@
+1 xinu04.cs.purdue.edu
+2 xinu02.cs.purdue.edu
+3 xinu06.cs.purdue.edu
+4 xinu07.cs.purdue.edu
