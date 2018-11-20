@@ -1,4 +1,3 @@
-# Thread class
 import errno
 import socket
 import time

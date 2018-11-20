@@ -99,11 +99,11 @@ class Server:
 
     def connectotoneighbourhood(self):
         for host in self.neighbourhood:
+            # Listening socket
+            neighbour = (host, 10000)
             print(host, self.connections)
-            if host != self.ip and host not in self.connections:
+            if neighbour[0] != self.ip and neighbour not in self.connections:
                 try:
-                    # Listening socket
-                    neighbour = (host, 10000)
                     # print('Trying to connect to %s port %s' % neighbour)
                     exchange_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                     exchange_socket.settimeout(2)
