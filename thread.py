@@ -42,6 +42,9 @@ class ServerThread(Thread):
                     print("Server %s:%s asks who is the leader!" % self.addr)
                     self.conn.send(str(self.server.leader).encode())
 
+                elif 'newleader' in data:
+                    print("New leader election: ", data)
+
             except socket.timeout as e:
                 continue
 
@@ -99,12 +102,32 @@ class ExchangeThread(Thread):
 
             except socket.error as e:
                 if e.errno == errno.ECONNRESET:
+
+                    print('MAIN SERVER DISCONNECTED:', self.addr)
+
                     self.server.closeconnection(self.addr)
+
+                    highernumber = 0
+                    higherip = None
+
+                    for connection in self.server.connections:
+                        number = connection[0].rsplit('.', 1)[1]
+                        if number> highernumber:
+                            higherip = connection[0]
+
+                    if higherip is None:
+                        higherip = self.server.ip
+
+                    # Ask to server who is the leader
+                    self.conn.send(("newleader:"+str((higherip, 10000))).encode())
+                    #
+                    # data = self.conn.recv(1024).decode()
+                    # print('leader response:', data)
 
                     # disparar uma nova eleição
 
-                    print('MAIN SERVER DISCONNECTED:', self.addr)
-                    break
+                    # break
+                    continue
                 else:
                     raise
 
