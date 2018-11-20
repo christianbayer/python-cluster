@@ -29,7 +29,7 @@ class Server:
         self.connectotoneighbourhood()
 
         # Wait 10 second for the leader response inside the "ExchangeThread"
-        time.sleep(10)
+        # time.sleep(10)
 
         # If no leader, i am the leader
         if self.leader is None:
