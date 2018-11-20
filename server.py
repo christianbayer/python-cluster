@@ -112,27 +112,25 @@ class Server:
             # Listening socket
             neighbour = (host, 10000)
 
-            # If host is me
-            if host == self.ip:
-                print("First if")
-                continue
-
-            # If the host is already connected
-            if self.checkhostinconnections(host):
-                print("Second if")
-                continue
-
             self.connecttoneighbour(neighbour)
 
-    def checkhostinconnections(self, host):
-        print('self connections:', self.connections, 'host:', host)
+    def checkifhostisinconnections(self, host):
+        print("Checking connection:", host, self.connections)
         for connection in self.connections:
-            print("Checking connection:", connection[0], host)
             if connection[0] == host:
                 return True
         return False
 
     def connecttoneighbour(self, neighbour):
+
+        # If host is me
+        if neighbour[0] == self.ip:
+            return False
+
+        # If the host is already connected
+        if self.checkifhostisinconnections(neighbour[0]):
+            return False
+
         try:
             exchange_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             exchange_socket.settimeout(2)
