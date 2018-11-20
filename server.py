@@ -37,9 +37,9 @@ class Server:
             print('\n\nI am the leader! %s \n\n' % str(self.leader))
 
         # Start thread that continuous try to connect
-        t = ConnectionThread(self)
-        t.setDaemon(True)
-        t.start()
+        # t = ConnectionThread(self)
+        # t.setDaemon(True)
+        # t.start()
 
         while True:
             print('Waiting for connection...')
@@ -49,6 +49,10 @@ class Server:
 
             # Print current connections
             self.connections.append(addr)
+
+            # Try connect to host
+            self.connecttoneighbour((addr[0], 10000))
+
             print('Current connections:', self.connections)
 
             # After connect, pass to thread
@@ -109,7 +113,7 @@ class Server:
             neighbour = (host, 10000)
 
             # If host is me
-            if neighbour[0] == self.ip:
+            if host == self.ip:
                 print("First if")
                 continue
 
@@ -118,17 +122,7 @@ class Server:
                 print("Second if")
                 continue
 
-            try:
-                print("Inside try")
-                exchange_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                exchange_socket.settimeout(2)
-                exchange_socket.connect(neighbour)
-                t = ExchangeThread(self, exchange_socket, neighbour)
-                print("\n\n\nCONECTOU COM SUCESSSSSSOOOOOOOOOOOO\n\n\n")
-                t.setDaemon(True)
-                t.start()
-            except socket.error as socketerror:
-                continue
+            self.connecttoneighbour(neighbour)
 
     def checkhostinconnections(self, host):
         print('self connections:', self.connections, 'host:', host)
@@ -137,3 +131,16 @@ class Server:
             if connection[0] == host:
                 return True
         return False
+
+    def connecttoneighbour(self, neighbour):
+        try:
+            exchange_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            exchange_socket.settimeout(2)
+            exchange_socket.connect(neighbour)
+            t = ExchangeThread(self, exchange_socket, neighbour)
+            print("\n\n\nCONECTOU COM SUCESSSSSSOOOOOOOOOOOO\n\n\n")
+            t.setDaemon(True)
+            t.start()
+            return True
+        except socket.error as socketerror:
+            return False
