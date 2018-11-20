@@ -98,22 +98,26 @@ class Server:
         return neighbourhood
 
     def connectotoneighbourhood(self):
+
+        def checkhostinconnections(server, host):
+            for connection in server.connections:
+                if connection[0] == host:
+                    return True
+            return False
+
         for host in self.neighbourhood:
             # Listening socket
             neighbour = (host, 10000)
-            print(neighbour, self.connections)
 
             # If host is me
             if neighbour[0] == self.ip:
                 continue
 
             # If the host is already connected
-            for connection in self.connections:
-                if connection[0] == neighbour[0]:
-                    continue
+            if checkhostinconnections(self, host):
+                continue
 
             try:
-                # print('Trying to connect to %s port %s' % neighbour)
                 exchange_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 exchange_socket.settimeout(2)
                 exchange_socket.connect(neighbour)
