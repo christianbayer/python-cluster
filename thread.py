@@ -5,6 +5,18 @@ import time
 from threading import Thread
 
 
+class ConnectionThread(Thread):
+    def __init__(self, server):
+        Thread.__init__(self)
+        self.server = server
+
+    def run(self):
+        while True:
+            self.server.connectotoneighbourhood()
+            # Wait 10 seconds and try connect again
+            time.sleep(20)
+
+
 # Server
 class ServerThread(Thread):
     def __init__(self, server, conn, addr):
@@ -42,41 +54,10 @@ class ServerThread(Thread):
                 else:
                     raise
 
-        # while True:
-        #     print('listener here', self.client_address)
-        #     time.sleep(20)
-
-
-# class VerifyConnections(Thread):
-#     def __init__(self):
-#         Thread.__init__(self)
-#         # self._stop_event = threading.Event()
-#         self.connections = []
-#         self.sleep = 5
-#
-#     # def stop(self):
-#     # self._stop_event.set()
-#
-#     # def stopped(self):
-#     #     return self._stop_event.is_set()
-#
-#     def run(self):
-#         while True:
-#             print('da thread:', self.connections)
-#             for connection in self.connections:
-#                 host = connection[1][0]
-#                 if not ping(host):
-#                     print('Testing connection to %s... Failed!!!' % host)
-#                     time.sleep(2)
-#                     if not ping(host):
-#                         raise Exception("Host disconnected: %s" % host)
-#                 print('Testing connection to %s... Success!' % host)
-#             time.sleep(self.sleep)
-
 
 # Client Server
 class ExchangeThread(Thread):
-    def __init__(self, server,conn, addr):
+    def __init__(self, server, conn, addr):
         Thread.__init__(self)
         self.server = server
         self.conn = conn

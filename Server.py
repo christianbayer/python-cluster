@@ -2,7 +2,7 @@ import os
 import socket
 from subprocess import check_output
 
-from thread import ServerThread
+from thread import ServerThread, ConnectionThread, ExchangeThread
 from utils import ping
 
 
@@ -13,19 +13,28 @@ class Server:
         self.ip, self.mask = self.getnetwork()
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.bind((self.ip, self.port))
+        self.address = (self.ip, self.port)
+        self.sock.bind(self.address)
         self.neighbourhood = self.getneighbourhood() if neighbourhood is None else neighbourhood
         self.connections = []
         self.leader = None
 
-    def listen(self, isleader):
+    def listen(self):
+
+        # Try connect to another server
+        self.connectotoneighbourhood()
 
         # Start listen
         self.sock.listen(10)
 
-        if isleader:
-            self.leader = (self.ip, self.port)
+        if self.leader is None:
+            self.leader = self.address
             print('\n\nI am the leader! %s \n\n' % str(self.leader))
+
+        # Start thread that continuous try to connect
+        t = ConnectionThread(self)
+        t.setDaemon(True)
+        t.start()
 
         while True:
             print('Waiting for connection...')
@@ -68,9 +77,10 @@ class Server:
         else:
             out = check_output(["ifconfig"], universal_newlines=True)
             for line in out.split('\n'):
-                if 'inet addr' in line and 'Bcast' in line:
-                    ip = line.split(':')[1].strip().split(' ').strip()
-                    mask = line.split('Mask:')[1].strip()
+                if 'inet' in line and ('Bcast' in line or 'broadcast' in line):
+                    info = line.strip().split(' ')
+                    ip = info[1]
+                    mask = info[4]
         # If could not find address
         return [ip, mask]
 
@@ -86,3 +96,20 @@ class Server:
                 neighbourhood.append(host)
 
         return neighbourhood
+
+    def connectotoneighbourhood(self):
+        for host in self.neighbourhood:
+            print(host, self.connections)
+            if host != self.ip and host not in self.connections:
+                try:
+                    # Listening socket
+                    neighbour = (host, 10000)
+                    # print('Trying to connect to %s port %s' % neighbour)
+                    exchange_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                    exchange_socket.settimeout(2)
+                    exchange_socket.connect(neighbour)
+                    t = ExchangeThread(self, exchange_socket, neighbour)
+                    t.setDaemon(True)
+                    t.start()
+                except socket.error as socketerror:
+                    continue
