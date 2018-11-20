@@ -1,5 +1,6 @@
 import os
 import socket
+import time
 from subprocess import check_output
 
 from thread import ServerThread, ConnectionThread, ExchangeThread
@@ -21,12 +22,16 @@ class Server:
 
     def listen(self):
 
-        # Try connect to another server
-        self.connectotoneighbourhood()
-
         # Start listen
         self.sock.listen(10)
 
+        # Try connect to another server
+        self.connectotoneighbourhood()
+
+        # Wait 10 second for the leader response inside the "ExchangeThread"
+        time.sleep(10)
+
+        # If no leader, i am the leader
         if self.leader is None:
             self.leader = self.address
             print('\n\nI am the leader! %s \n\n' % str(self.leader))
@@ -99,30 +104,36 @@ class Server:
 
     def connectotoneighbourhood(self):
 
-        def checkhostinconnections(server, host):
-            for connection in server.connections:
-                if connection[0] == host:
-                    return True
-            return False
-
         for host in self.neighbourhood:
             # Listening socket
             neighbour = (host, 10000)
 
             # If host is me
             if neighbour[0] == self.ip:
+                print("First if")
                 continue
 
             # If the host is already connected
-            if checkhostinconnections(self, host):
+            if self.checkhostinconnections(host):
+                print("Second if")
                 continue
 
             try:
+                print("Inside try")
                 exchange_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 exchange_socket.settimeout(2)
                 exchange_socket.connect(neighbour)
                 t = ExchangeThread(self, exchange_socket, neighbour)
+                print("\n\n\nCONECTOU COM SUCESSSSSSOOOOOOOOOOOO\n\n\n")
                 t.setDaemon(True)
                 t.start()
             except socket.error as socketerror:
                 continue
+
+    def checkhostinconnections(self, host):
+        print('self connections:', self.connections, 'host:', host)
+        for connection in self.connections:
+            print("Checking connection:", connection[0], host)
+            if connection[0] == host:
+                return True
+        return False
