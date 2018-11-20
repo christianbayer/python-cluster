@@ -101,15 +101,24 @@ class Server:
         for host in self.neighbourhood:
             # Listening socket
             neighbour = (host, 10000)
-            print(host, self.connections)
-            if neighbour[0] != self.ip and neighbour not in self.connections:
-                try:
-                    # print('Trying to connect to %s port %s' % neighbour)
-                    exchange_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    exchange_socket.settimeout(2)
-                    exchange_socket.connect(neighbour)
-                    t = ExchangeThread(self, exchange_socket, neighbour)
-                    t.setDaemon(True)
-                    t.start()
-                except socket.error as socketerror:
+            print(neighbour, self.connections)
+
+            # If host is me
+            if neighbour[0] == self.ip:
+                continue
+
+            # If the host is already connected
+            for connection in self.connections:
+                if connection[0] == neighbour[0]:
                     continue
+
+            try:
+                # print('Trying to connect to %s port %s' % neighbour)
+                exchange_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                exchange_socket.settimeout(2)
+                exchange_socket.connect(neighbour)
+                t = ExchangeThread(self, exchange_socket, neighbour)
+                t.setDaemon(True)
+                t.start()
+            except socket.error as socketerror:
+                continue

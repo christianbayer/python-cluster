@@ -13,7 +13,7 @@ class ConnectionThread(Thread):
         while True:
             self.server.connectotoneighbourhood()
             # Wait 10 seconds and try connect again
-            time.sleep(20)
+            time.sleep(10)
 
 
 # Server
