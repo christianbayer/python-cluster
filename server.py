@@ -143,7 +143,7 @@ class Server:
         except socket.error as socketerror:
             return False
 
-    def makeelection(self, ):
+    def makeelection(self ):
         highernumber = 0
         higherip = None
 

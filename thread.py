@@ -109,6 +109,7 @@ class ExchangeThread(Thread):
                     print('MAIN SERVER DISCONNECTED:', self.addr)
 
                     self.server.closeconnection(self.addr)
+                    self.server.makeelection()
 
                     # highernumber = 0
                     # higherip = None
