@@ -158,4 +158,4 @@ class Server:
         # Send to all server who is the new leader
         self.sock.send(("newleader:" + str((higherip, 10000))).encode())
 
-        print("SEND TO CONN", self.conn)
+        # print("SEND TO CONN", self.conn)

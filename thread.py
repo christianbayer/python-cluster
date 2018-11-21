@@ -108,8 +108,9 @@ class ExchangeThread(Thread):
 
                     print('MAIN SERVER DISCONNECTED:', self.addr)
 
-                    self.server.closeconnection(self.addr)
-                    self.server.makeelection()
+                    t = ServerThread(self.server, self.addr)
+                    t.setDaemon(True)
+                    t.start()
 
                     # highernumber = 0
                     # higherip = None
@@ -142,3 +143,12 @@ class ExchangeThread(Thread):
             time.sleep(1)
 
 
+class ElectionThread(Thread):
+    def __init__(self, server, addr):
+        Thread.__init__(self)
+        self.server = server
+        self.addr = addr
+
+    def run(self):
+        self.server.closeconnection(self.addr)
+        self.server.makeelection()
