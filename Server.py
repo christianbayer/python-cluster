@@ -142,3 +142,20 @@ class Server:
             return True
         except socket.error as socketerror:
             return False
+
+    def makeelection(self, ):
+        highernumber = 0
+        higherip = None
+
+        for connection in self.connections:
+            number = connection[0].rsplit('.', 1)[1]
+            if number > highernumber:
+                higherip = connection[0]
+
+        if higherip is None:
+            higherip = self.ip
+
+        # Send to all server who is the new leader
+        self.sock.send(("newleader:" + str((higherip, 10000))).encode())
+
+        print("SEND TO CONN", self.conn)

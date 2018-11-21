@@ -43,7 +43,7 @@ class ServerThread(Thread):
                     self.conn.send(str(self.server.leader).encode())
 
                 elif 'newleader' in data:
-                    print("New leader election: ", data)
+                    print("XABLAU New leader election: ", data)
 
             except socket.timeout as e:
                 continue
@@ -94,6 +94,9 @@ class ExchangeThread(Thread):
                 if data == 'Hello':
                     print("Server %s:%s send Hello!")
 
+                elif 'newleader' in data:
+                    print("XABLAUuuuuuuuuUUUUUU New leader election: ", data)
+
                 else:
                     break
 
@@ -107,29 +110,34 @@ class ExchangeThread(Thread):
 
                     self.server.closeconnection(self.addr)
 
-                    highernumber = 0
-                    higherip = None
+                    # highernumber = 0
+                    # higherip = None
+                    #
+                    # for connection in self.server.connections:
+                    #     number = connection[0].rsplit('.', 1)[1]
+                    #     if number> highernumber:
+                    #         higherip = connection[0]
+                    #
+                    # if higherip is None:
+                    #     higherip = self.server.ip
+                    #
+                    # # Ask to server who is the leader
+                    # self.conn.send(("newleader:"+str((higherip, 10000))).encode())
+                    #
+                    # print("SEND TO CONN", self.conn)
 
-                    for connection in self.server.connections:
-                        number = connection[0].rsplit('.', 1)[1]
-                        if number> highernumber:
-                            higherip = connection[0]
-
-                    if higherip is None:
-                        higherip = self.server.ip
-
-                    # Ask to server who is the leader
-                    self.conn.send(("newleader:"+str((higherip, 10000))).encode())
                     #
                     # data = self.conn.recv(1024).decode()
                     # print('leader response:', data)
 
                     # disparar uma nova eleição
 
-                    # break
-                    continue
+                    break
+                    # continue
                 else:
                     raise
 
             # Wait 1 second and go again
             time.sleep(1)
+
+
