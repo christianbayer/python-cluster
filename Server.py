@@ -15,7 +15,8 @@ class Server:
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.address = (self.ip, self.port)
-        self.sock.bind(self.address)
+        print(self.address)
+        self.sock.bind(('0.0.0.0', self.port))
         self.neighbourhood = self.getneighbourhood() if neighbourhood is None else neighbourhood
         self.connections = []
         self.leader = None
@@ -48,7 +49,7 @@ class Server:
             conn, addr = self.sock.accept()
 
             # Print current connections
-            self.connections.append(addr)
+            self.connections.append((conn, addr))
 
             # Try connect to host
             self.connecttoneighbour((addr[0], 10000))
@@ -62,8 +63,9 @@ class Server:
 
     # Remove the closed connection from array
     def closeconnection(self, addr):
-        if addr in self.connections:
-            self.connections.remove(addr)
+        for connection in self.connections:
+            if connection[1] == addr:
+                self.connections.remove(connection)
 
     # Get server hostname
     def gethostname(self):
@@ -117,7 +119,7 @@ class Server:
     def checkifhostisinconnections(self, host):
         print("Checking connection:", host, self.connections)
         for connection in self.connections:
-            if connection[0] == host:
+            if connection[1][0] == host:
                 return True
         return False
 
@@ -143,19 +145,25 @@ class Server:
         except socket.error as socketerror:
             return False
 
-    def makeelection(self ):
+    def makeelection(self):
+        print("Starting new election...")
+
         highernumber = 0
         higherip = None
 
         for connection in self.connections:
-            number = connection[0].rsplit('.', 1)[1]
-            if number > highernumber:
-                higherip = connection[0]
+            number = connection[1][0].rsplit('.', 1)[1]
+            if int(number) > int(highernumber):
+                higherip = connection[1][0]
 
         if higherip is None:
             higherip = self.ip
 
-        # Send to all server who is the new leader
-        self.sock.send(("newleader:" + str((higherip, 10000))).encode())
+        print("Higher IP: %s\nCurrent connections: %s" % (higherip, self.connections))
 
-        # print("SEND TO CONN", self.conn)
+        self.leader = (higherip, self.port)
+
+        print("New leader: %s" % str(self.leader))
+
+        for connection in self.connections:
+            connection[0].send(("newleader:" + str((higherip, 10000))).encode())

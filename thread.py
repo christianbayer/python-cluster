@@ -33,11 +33,6 @@ class ServerThread(Thread):
                 if not data:
                     break
 
-                print('Data received:', data)
-
-                if data == 'Hello':
-                    print("Server %s:%s send Hello!" % self.addr)
-
                 elif data == 'whoslider':
                     print("Server %s:%s asks who is the leader!" % self.addr)
                     self.conn.send(str(self.server.leader).encode())
@@ -72,30 +67,22 @@ class ExchangeThread(Thread):
         # Increase timeout
         self.conn.settimeout(10)
 
-        # Send hello message to server
-        self.conn.send("Hello".encode())
-
-        time.sleep(1)
-
         # Ask to server who is the leader
         self.conn.send("whoslider".encode())
 
         data = self.conn.recv(1024).decode()
-        print('leader response:', data)
 
         self.server.leader = eval(data)
-        print(self.server.leader)
+        print("New leader: %s" % str(self.server.leader))
 
         while True:
 
             try:
                 data = self.conn.recv(1024).decode()
 
-                if data == 'Hello':
-                    print("Server %s:%s send Hello!")
-
-                elif 'newleader' in data:
-                    print("XABLAUuuuuuuuuUUUUUU New leader election: ", data)
+                if 'newleader' in data:
+                    self.server.leader = eval(data)
+                    print("New leader elected: %s " % data)
 
                 else:
                     break
@@ -108,34 +95,11 @@ class ExchangeThread(Thread):
 
                     print('MAIN SERVER DISCONNECTED:', self.addr)
 
-                    t = ServerThread(self.server, self.addr)
+                    t = ElectionThread(self.server, self.addr)
                     t.setDaemon(True)
                     t.start()
 
-                    # highernumber = 0
-                    # higherip = None
-                    #
-                    # for connection in self.server.connections:
-                    #     number = connection[0].rsplit('.', 1)[1]
-                    #     if number> highernumber:
-                    #         higherip = connection[0]
-                    #
-                    # if higherip is None:
-                    #     higherip = self.server.ip
-                    #
-                    # # Ask to server who is the leader
-                    # self.conn.send(("newleader:"+str((higherip, 10000))).encode())
-                    #
-                    # print("SEND TO CONN", self.conn)
-
-                    #
-                    # data = self.conn.recv(1024).decode()
-                    # print('leader response:', data)
-
-                    # disparar uma nova eleição
-
                     break
-                    # continue
                 else:
                     raise
 
@@ -150,5 +114,6 @@ class ElectionThread(Thread):
         self.addr = addr
 
     def run(self):
+        # Não passar apenas o self.addr, precisa da conexão
         self.server.closeconnection(self.addr)
         self.server.makeelection()
