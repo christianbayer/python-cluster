@@ -139,7 +139,7 @@ class ExchangeThread(Thread):
 
                 elif 'areyouwake' in data:
                     print("Someone asked if i'm awake.")
-                    self.conn.send("yes")
+                    self.conn.send("yes".encode())
 
                 else:
                     break
