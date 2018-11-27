@@ -81,8 +81,10 @@ class TestThread(Thread):
                         # Not a broken pipe
                         raise
 
+                    print("SERVER DISCONECTED: %s:%s", connection[1])
+
                     # If the leader is not responding
-                    if connection[1] == self.server.leader:
+                    if connection[1][0] == self.server.leader[0]:
                         # Start a new election
                         t = ElectionThread(self.server)
                         t.setDaemon(True)

@@ -30,6 +30,9 @@ class Server:
         # Try connect to another server
         self.connectotoneighbourhood()
 
+        # Wait for 5 seconds before auto declare the leader
+        time.sleep(5)
+
         # If no leader, i am the leader
         if self.leader is None:
             self.leader = self.address
