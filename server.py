@@ -128,7 +128,7 @@ class Server:
 
         for host in self.neighbourhood:
             # Listening socket
-            neighbour = (host, 10000)
+            neighbour = (host, self.port)
 
             self.connecttoneighbour(neighbour)
 
@@ -189,4 +189,4 @@ class Server:
         print("New leader: %s" % str(self.leader))
 
         for connection in self.connectionsReceived:
-            connection[0].send(("newleader:" + str((higherip, 10000))).encode())
+            connection[0].send(("newleader:" + str((higherip, self.port))).encode())
