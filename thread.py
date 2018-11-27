@@ -144,8 +144,10 @@ class ExchangeThread(Thread):
                 data = self.conn.recv(1024).decode()
 
                 if 'newleader' in data:
-                    self.server.leader = eval(data)
-                    print("New leader elected: %s " % data)
+                    addr = data.split(':')[1]
+                    self.server.leader = eval(addr)
+
+                    print("New leader elected: %s " % addr)
 
                 elif 'areyouwake' in data:
                     print("Someone asked if i'm awake.")
