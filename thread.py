@@ -62,8 +62,8 @@ class TestThread(Thread):
 
     def run(self):
         while True:
-            print("Testing connections...", self.server.connections)
-            for connection in self.server.connections:
+            print("Testing connections...", self.server.connectionsReceived)
+            for connection in self.server.connectionsReceived:
                 ip = connection[1][0]
                 if not ping(ip):
 
