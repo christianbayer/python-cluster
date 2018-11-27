@@ -64,19 +64,42 @@ class TestThread(Thread):
         while True:
             print("Testing connections...", self.server.connectionsReceived)
             for connection in self.server.connectionsReceived:
-                ip = connection[1][0]
-                if not ping(ip):
 
-                    # If the leader is not responding
-                    if connection[1] == self.server.leader:
-                        # Start a new election
-                        t = ElectionThread(self.server)
-                        t.setDaemon(True)
-                        t.start()
+                # Get socket connection
+                conn = connection[0]
 
-                    # Else, just remove from connections array
-                    else:
-                        self.server.closeconnection(ip)
+                try:
+
+                    # Ask if it still wake
+                    conn.send("areyouwake".encode())
+
+                    # Wait for response
+                    data = conn.recv(1024).decode()
+
+                except socket.error as e:
+                    if e.errno != errno.EPIPE:
+                        # Not a broken pipe
+                        raise
+
+                    # Close connection
+                    self.server.closeconnection(connection[1])
+
+                    continue
+
+                # print("Pinging to %s: %s" % (ip, ping(ip)))
+                #
+                # if not ping(ip):
+                #
+                #     # If the leader is not responding
+                #     if connection[1] == self.server.leader:
+                #         # Start a new election
+                #         t = ElectionThread(self.server)
+                #         t.setDaemon(True)
+                #         t.start()
+                #
+                #     # Else, just remove from connections array
+                #     else:
+                #         self.server.closeconnection(ip)
 
             # Before test again, wait 5 secons
             time.sleep(5)
@@ -113,6 +136,10 @@ class ExchangeThread(Thread):
                 if 'newleader' in data:
                     self.server.leader = eval(data)
                     print("New leader elected: %s " % data)
+
+                elif 'areyouwake' in data:
+                    print("Someone asked if i'm awake.")
+                    self.conn.send("yes")
 
                 else:
                     break

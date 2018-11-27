@@ -67,8 +67,9 @@ class Server:
 
     # Remove the closed connection from array
     def closeconnection(self, addr):
-        for connection in self.connections:
+        for connection in self.connectionsReceived:
             if connection[1] == addr:
+                print("Closing connection of %s:%s" % connection[1])
                 self.connectionsReceived.remove(connection)
 
     # Get server hostname
@@ -122,7 +123,7 @@ class Server:
 
     def checkifhostisinconnectionsmade(self, host):
         print("Checking connection:", host, self.connectionsMade)
-        for connection in self.connectionsReceived:
+        for connection in self.connectionsMade:
             if connection[1][0] == host:
                 return True
         return False
