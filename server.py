@@ -15,7 +15,6 @@ class Server:
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.address = (self.ip, self.port)
-        print(self.address)
         self.sock.bind(('0.0.0.0', self.port))
         self.neighbourhood = self.getneighbourhood() if neighbourhood is None else neighbourhood
         self.connectionsReceived = []
@@ -29,9 +28,6 @@ class Server:
 
         # Try connect to another server
         self.connectotoneighbourhood()
-
-        # Wait 10 second for the leader response inside the "ExchangeThread"
-        # time.sleep(10)
 
         # If no leader, i am the leader
         if self.leader is None:
@@ -69,8 +65,13 @@ class Server:
     def closeconnection(self, addr):
         for connection in self.connectionsReceived:
             if connection[1] == addr:
-                print("Closing connection of %s:%s" % connection[1])
+                print("Closing connection received from %s:%s" % connection[1])
                 self.connectionsReceived.remove(connection)
+
+        for connection in self.connectionsMade:
+            if connection[1] == addr:
+                print("Closing connection made to %s:%s" % connection[1])
+                self.connectionsMade.remove(connection)
 
     # Get server hostname
     def gethostname(self):

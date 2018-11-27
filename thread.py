@@ -62,7 +62,7 @@ class TestThread(Thread):
 
     def run(self):
         while True:
-            print("Testing connections...", self.server.connectionsReceived)
+            print("Testing connections received...", self.server.connectionsReceived)
             for connection in self.server.connectionsReceived:
 
                 # Get socket connection
