@@ -63,13 +63,19 @@ class Server:
 
     # Remove the closed connection from array
     def closeconnection(self, addr):
+
+        print("================ CLOSING CONNECTION =================")
+        print("Received:",self.connectionsReceived)
+        print("Made:",self.connectionsMade)
+        print("Addr:",addr)
+
         for connection in self.connectionsReceived:
-            if connection[1] == addr:
+            if connection[1][0] == addr[0]:
                 print("Closing connection received from %s:%s" % connection[1])
                 self.connectionsReceived.remove(connection)
 
         for connection in self.connectionsMade:
-            if connection[1] == addr:
+            if connection[1][0] == addr[0]:
                 print("Closing connection made to %s:%s" % connection[1])
                 self.connectionsMade.remove(connection)
 
@@ -123,7 +129,7 @@ class Server:
             self.connecttoneighbour(neighbour)
 
     def checkifhostisinconnectionsmade(self, host):
-        print("Checking connection:", host, self.connectionsMade)
+        print("Checking connection made:", host, self.connectionsMade)
         for connection in self.connectionsMade:
             if connection[1][0] == host:
                 return True
