@@ -3,7 +3,7 @@ import socket
 import time
 from subprocess import check_output
 
-from thread import ServerThread, ConnectionThread, ExchangeThread
+from thread import ServerThread, ConnectionThread, ExchangeThread, TestThread
 from utils import ping
 
 
@@ -38,9 +38,9 @@ class Server:
             print('\n\nI am the leader! %s \n\n' % str(self.leader))
 
         # Start thread that continuous try to connect
-        # t = ConnectionThread(self)
-        # t.setDaemon(True)
-        # t.start()
+        t = TestThread(self)
+        t.setDaemon(True)
+        t.start()
 
         while True:
             print('Waiting for connection...')
@@ -52,7 +52,7 @@ class Server:
             self.connections.append((conn, addr))
 
             # Try connect to host
-            self.connecttoneighbour((addr[0], 10000))
+            self.connecttoneighbour((addr[0], self.port))
 
             print('Current connections:', self.connections)
 
@@ -125,15 +125,20 @@ class Server:
 
     def connecttoneighbour(self, neighbour):
 
+        print("Connecting to server %s:%s" % neighbour)
+
         # If host is me
         if neighbour[0] == self.ip:
+            print('if 1')
             return False
 
         # If the host is already connected
         if self.checkifhostisinconnections(neighbour[0]):
+            print('if 2')
             return False
 
         try:
+            print('try')
             exchange_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             exchange_socket.settimeout(2)
             exchange_socket.connect(neighbour)
@@ -143,6 +148,7 @@ class Server:
             t.start()
             return True
         except socket.error as socketerror:
+            print('catch')
             return False
 
     def makeelection(self):

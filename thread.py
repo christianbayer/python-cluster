@@ -3,6 +3,8 @@ import socket
 import time
 from threading import Thread
 
+from utils import ping
+
 
 class ConnectionThread(Thread):
     def __init__(self, server):
@@ -52,6 +54,34 @@ class ServerThread(Thread):
                     raise
 
 
+# Listen thread
+class TestThread(Thread):
+    def __init__(self, server):
+        Thread.__init__(self)
+        self.server = server
+
+    def run(self):
+        while True:
+            print("Testing connections...", self.server.connections)
+            for connection in self.server.connections:
+                ip = connection[1][0]
+                if not ping(ip):
+
+                    # If the leader is not responding
+                    if connection[1] == self.server.leader:
+                        # Start a new election
+                        t = ElectionThread(self.server)
+                        t.setDaemon(True)
+                        t.start()
+
+                    # Else, just remove from connections array
+                    else:
+                        self.server.closeconnection(ip)
+
+            # Before test again, wait 5 secons
+            time.sleep(5)
+
+
 # Client Server
 class ExchangeThread(Thread):
     def __init__(self, server, conn, addr):
@@ -95,7 +125,7 @@ class ExchangeThread(Thread):
 
                     print('MAIN SERVER DISCONNECTED:', self.addr)
 
-                    t = ElectionThread(self.server, self.addr)
+                    t = ElectionThread(self.server)
                     t.setDaemon(True)
                     t.start()
 
@@ -108,12 +138,11 @@ class ExchangeThread(Thread):
 
 
 class ElectionThread(Thread):
-    def __init__(self, server, addr):
+    def __init__(self, server):
         Thread.__init__(self)
         self.server = server
-        self.addr = addr
 
     def run(self):
         # Não passar apenas o self.addr, precisa da conexão
-        self.server.closeconnection(self.addr)
+        self.server.closeconnection(self.server.leader)
         self.server.makeelection()
