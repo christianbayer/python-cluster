@@ -149,6 +149,7 @@ class Server:
             exchange_socket.connect(neighbour)
             t = ExchangeThread(self, exchange_socket, neighbour)
             print("\n\n\nCONECTOU COM SUCESSSSSSOOOOOOOOOOOO\n\n\n")
+            self.connectionsMade.append((exchange_socket, neighbour))
             t.setDaemon(True)
             t.start()
             return True
