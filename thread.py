@@ -74,7 +74,7 @@ class TestThread(Thread):
                     conn.send("areyouwake".encode())
 
                     # Wait for response
-                    data = conn.recv(1024).decode()
+                    # data = conn.recv(1024).decode()
 
                 except socket.error as e:
                     if e.errno != errno.EPIPE:
@@ -95,21 +95,6 @@ class TestThread(Thread):
                         self.server.closeconnection(connection[1])
 
                     continue
-
-                # print("Pinging to %s: %s" % (ip, ping(ip)))
-                #
-                # if not ping(ip):
-                #
-                #     # If the leader is not responding
-                #     if connection[1] == self.server.leader:
-                #         # Start a new election
-                #         t = ElectionThread(self.server)
-                #         t.setDaemon(True)
-                #         t.start()
-                #
-                #     # Else, just remove from connections array
-                #     else:
-                #         self.server.closeconnection(ip)
 
             # Before test again, wait 5 secons
             time.sleep(5)
@@ -154,7 +139,7 @@ class ExchangeThread(Thread):
                     self.conn.send("yes".encode())
 
                 else:
-                    break
+                    continue
 
             except socket.timeout:
                 continue
@@ -174,6 +159,8 @@ class ExchangeThread(Thread):
 
             # Wait 1 second and go again
             time.sleep(1)
+
+        print("SAIU DO WHILE TRUEEEEEEEE!!!!!!")
 
 
 class ElectionThread(Thread):
