@@ -81,8 +81,16 @@ class TestThread(Thread):
                         # Not a broken pipe
                         raise
 
-                    # Close connection
-                    self.server.closeconnection(connection[1])
+                    # If the leader is not responding
+                    if connection[1] == self.server.leader:
+                        # Start a new election
+                        t = ElectionThread(self.server)
+                        t.setDaemon(True)
+                        t.start()
+
+                    # Else, just remove from connections array
+                    else:
+                        self.server.closeconnection(connection[1])
 
                     continue
 

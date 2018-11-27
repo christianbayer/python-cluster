@@ -15,6 +15,7 @@ class Server:
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.address = (self.ip, self.port)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind(('0.0.0.0', self.port))
         self.neighbourhood = self.getneighbourhood() if neighbourhood is None else neighbourhood
         self.connectionsReceived = []
