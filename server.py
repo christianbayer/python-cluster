@@ -184,8 +184,8 @@ class Server:
         # if higherip is None:
         #     higherip = self.ip
 
-        if highernumber < myip:
-            highernumber = myip
+        if highernumber < int(myip):
+            highernumber = int(myip)
 
         higherip = self.ip.rsplit('.', 1)[0] + '.' + str(highernumber)
 
