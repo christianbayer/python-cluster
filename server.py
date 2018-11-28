@@ -69,9 +69,9 @@ class Server:
     def closeconnection(self, addr):
 
         print("================ CLOSING CONNECTION =================")
-        print("Received:",self.connectionsReceived)
-        print("Made:",self.connectionsMade)
-        print("Addr:",addr)
+        print("Received:", self.connectionsReceived)
+        print("Made:", self.connectionsMade)
+        print("Addr:", addr)
 
         for connection in self.connectionsReceived:
             if connection[1][0] == addr[0]:
@@ -171,16 +171,23 @@ class Server:
     def makeelection(self):
         print("Starting new election...")
 
+        myip = self.ip.rsplit('.', 1)[1]
         highernumber = 0
-        higherip = None
+        # higherip = None
 
         for connection in self.connectionsReceived:
             number = connection[1][0].rsplit('.', 1)[1]
             if int(number) > int(highernumber):
-                higherip = connection[1][0]
+                highernumber = int(number)
+                # higherip = connection[1][0]
 
-        if higherip is None:
-            higherip = self.ip
+        # if higherip is None:
+        #     higherip = self.ip
+
+        if highernumber < myip:
+            highernumber = myip
+
+        higherip = self.ip.rsplit('.', 1)[0] + '.' + str(highernumber)
 
         print("Higher IP: %s\nCurrent connections: %s" % (higherip, self.connectionsReceived))
 
